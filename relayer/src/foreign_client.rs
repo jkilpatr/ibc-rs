@@ -762,20 +762,17 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
         target_height: Height,
         trusted_height: Height,
     ) -> Result<Vec<Any>, ForeignClientError> {
-        let latest_height = || {
-            self.src_chain().query_latest_height().map_err(|e| {
-                ForeignClientError::client_create(
-                    self.src_chain.id(),
-                    "failed fetching src chain latest height with error".to_string(),
-                    e,
-                )
-            })
+        let latest_height = match self.src_chain.query_latest_height() {
+            Ok(v) => v,
+            Err(_) => ibc::Height::new(self.src_chain.id().version(), 487540),
         };
 
         // Wait for source chain to reach `target_height`
         while latest_height()? < target_height {
             thread::sleep(Duration::from_millis(100))
         }
+
+        println!("now here round 2");
 
         // Get the latest client state on destination.
         let client_state = self
@@ -788,6 +785,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
                     e,
                 )
             })?;
+        println!("now here round 3");
 
         let trusted_height = if trusted_height == Height::zero() {
             self.solve_trusted_height(target_height, &client_state)?
@@ -795,6 +793,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
             self.validate_trusted_height(target_height, trusted_height, &client_state)?;
             trusted_height
         };
+        println!("now here round 4");
 
         if trusted_height >= target_height {
             warn!(
@@ -814,6 +813,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
                     e,
                 )
             })?;
+        println!("now here round 5");
 
         let signer = self.dst_chain().get_signer().map_err(|e| {
             ForeignClientError::client_update(
@@ -822,6 +822,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
                 e,
             )
         })?;
+        println!("now here round 6");
 
         self.wait_for_header_validation_delay(&client_state, &header)?;
 
@@ -843,6 +844,7 @@ impl<DstChain: ChainHandle, SrcChain: ChainHandle> ForeignClient<DstChain, SrcCh
                 .to_any(),
             );
         }
+        println!("now here round 7");
 
         debug!(
             "[{}] MsgUpdateAnyClient from trusted height {} to target height {}",
