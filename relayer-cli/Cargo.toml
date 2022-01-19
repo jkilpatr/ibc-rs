@@ -10,7 +10,7 @@ authors = [
 relayer = { path = "../relayer" }
 ibc = { path = "../modules" }
 anomaly = "0.2.0"
-gumdrop = "0.7"
+gumdrop = "0.8"
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
 tokio = { version = "0.2", features = ["full"] }
