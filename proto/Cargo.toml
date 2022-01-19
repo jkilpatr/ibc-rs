@@ -20,7 +20,7 @@ all-features = true
 [dependencies]
 prost = { version = "0.6" }
 prost-types = { version = "0.6" }
-anomaly = "0.2"
+anomaly = "0.99"
 bytes = "0.6"
 thiserror = "1.0"
 tonic = "0.3.1"
